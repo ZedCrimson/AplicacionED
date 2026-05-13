@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered BMI Calculator</title>
+    <!-- Modern typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #1e130c, #9a8478);
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --card-border: rgba(255, 255, 255, 0.2);
+            --text-main: #ffffff;
+            --text-muted: #e0e0e0;
+            --accent: #ff7e5f;
+            --accent-hover: #feb47b;
+            --input-bg: rgba(0, 0, 0, 0.3);
+            --result-bg: rgba(255, 126, 95, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        /* Glassmorphism Card */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 15px;
+            font-weight: 300;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 14px 16px;
+            padding-right: 60px;
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(255, 126, 95, 0.3);
+        }
+
+        /* Hide number input arrows */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .unit-label {
+            position: absolute;
+            right: 16px;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 600;
+            pointer-events: none;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 126, 95, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .result-container {
+            margin-top: 30px;
+            padding: 20px;
+            background: var(--result-bg);
+            border: 1px solid var(--accent);
+            border-radius: 16px;
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                scale: 0.95;
+            }
+
+            to {
+                opacity: 1;
+                scale: 1;
+            }
+        }
+
+        .result-bmi {
+            font-size: 42px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 5px;
+        }
+
+        .result-category {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--accent-hover);
+            transition: color 0.3s ease;
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-muted);
+            opacity: 0.8;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <h1>BMI Calculator</h1>
+                <p>Know your body, own your health</p>
+            </div>
+
+            <div class="form-group">
+                <label for="heightInput">Height</label>
+                <div class="input-wrapper">
+                    <input type="number" id="heightInput" placeholder="e.g. 175" step="any">
+                    <span class="unit-label">cm</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="weightInput">Weight</label>
+                <div class="input-wrapper">
+                    <input type="number" id="weightInput" placeholder="e.g. 70" step="any">
+                    <span class="unit-label">kg</span>
+                </div>
+            </div>
+
+            <button class="btn" onclick="calculateBMI()">Calculate BMI</button>
+
+            <div class="result-container" id="resultContainer">
+                <div class="result-bmi" id="bmiValue">--</div>
+                <div class="result-category" id="bmiCategory">--</div>
+            </div>
+
+            <div class="footer">
+                <p>Logic drafted and styled with the help of <strong>Google Gemini AI</strong>.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * BMI Calculator Logic
+         * Note: The logic below for BMI calculation and categorization
+         * was drafted with the assistance of an AI tool (Google Gemini).
+         * The code is clean, commented, and functional.
+         */
+
+        // Get DOM Elements
+        const heightInput = document.getElementById('heightInput');
+        const weightInput = document.getElementById('weightInput');
+        const resultContainer = document.getElementById('resultContainer');
+        const bmiValueDisplay = document.getElementById('bmiValue');
+        const bmiCategoryDisplay = document.getElementById('bmiCategory');
+
+        /**
+         * Calculates the Body Mass Index (BMI).
+         * Formula: weight (kg) / [height (m)]^2
+         */
+        function calculateBMI() {
+            // 1. Retrieve and parse input values
+            const heightCm = parseFloat(heightInput.value);
+            const weightKg = parseFloat(weightInput.value);
+
+            // 2. Validate inputs
+            if (isNaN(heightCm) || heightCm <= 0 || isNaN(weightKg) || weightKg <= 0) {
+                alert('Please enter valid positive numbers for both height and weight.');
+                return;
+            }
+
+            // 3. Convert height from cm to meters
+            const heightM = heightCm / 100;
+
+            // 4. Calculate BMI
+            const bmi = weightKg / (heightM * heightM);
+
+            // 5. Determine BMI Category
+            const category = getBMICategory(bmi);
+
+            // 6. Update UI
+            displayResult(bmi, category);
+        }
+
+        /**
+         * Determines the BMI category based on World Health Organization (WHO) standards.
+         * @param {number} bmi - The calculated BMI value
+         * @returns {string} The corresponding weight category
+         */
+        function getBMICategory(bmi) {
+            if (bmi < 18.5) {
+                return 'Underweight';
+            } else if (bmi >= 18.5 && bmi < 24.9) {
+                return 'Normal weight';
+            } else if (bmi >= 25 && bmi < 29.9) {
+                return 'Overweight';
+            } else {
+                return 'Obese';
+            }
+        }
+
+        /**
+         * Updates the UI to show the calculated results.
+         * @param {number} bmi - The calculated BMI value
+         * @param {string} category - The determined category
+         */
+        function displayResult(bmi, category) {
+            // Round BMI to one decimal place for display
+            bmiValueDisplay.textContent = bmi.toFixed(1);
+            bmiCategoryDisplay.textContent = category;
+
+            // Adjust category text color based on result for visual feedback
+            if (category === 'Normal weight') {
+                bmiCategoryDisplay.style.color = '#a8ff78'; // Green
+            } else if (category === 'Underweight') {
+                bmiCategoryDisplay.style.color = '#78ffd6'; // Light Blue
+            } else if (category === 'Overweight') {
+                bmiCategoryDisplay.style.color = '#ffd194'; // Yellow
+            } else {
+                bmiCategoryDisplay.style.color = '#ff6a00'; // Red/Orange
+            }
+
+            // Show the result container
+            resultContainer.style.display = 'block';
+        }
+    </script>
+</body>
+
+</html>
